@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+}
+
+#mycanvas {
+  position: absolute;
+  border: none;
+  width: innerWidth;
+  height: innerHeight;
+}
+
+#mycanvas:focus-visible {
+  outline: none;
+}
+
+::-moz-selection {
+  background: rgb(140,210,255);
+}
+::selection {
+  background: rgb(140,210,255);
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.swal-footer {
+  text-align: center;
+}

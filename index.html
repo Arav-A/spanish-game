@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Spanish Bounce</title>
+	<link rel="icon" type="image/png" href="circle.png">
+	<link href="style.css" rel="stylesheet" type="text/css" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+</head>
+
+<body onload="resizeGame();">
+  <canvas class="center" id="mycanvas" style="width:100px;hieght:100px;"></canvas>
+  
+  <script src="/processing.min.js"></script>
+
+  <script src="script.js"></script>
+
+  <script>
+  var programCode = function(processingInstance) {
+  with (processingInstance) {
+    size(1600, 900);
+    
+    var mousex;
+    var w;
+    var mousey;
+    var h;
+    var angle = random(0,360);
+    var offset = 0;
+    var collided = false;
+    var score = 0;
+    var lives = 2;
+    var inQuestion = false;
+    var highscore = 0;
+    var new_highscore = 0;
+    var movementCircleToggle = true;
+    var muted = false;
+    var paused = false;
+    var pPressed = false;
+    var keys = [];
+    var scene = 0;
+    var scene_fade = 0;
+    var highscore_rotation = round(random(-3,3));
+    var dark_theme = new PImage;
+    dark_theme = loadImage("dark-theme.png");
+    var bgm = new Audio('bg-music.mp3'); //https://www.youtube.com/watch?v=RmisQTg1EdY&t=521s
+    var music_start = round(random(1,5));
+    var music = false;
+    var musicStarted = false;
+    var achievement = new Audio('achievement.mp3');
+    //var  = ; //new var
+
+    /* THEME COLORS */
+    var theme = "default"; //default (0), green (25), blue (50), gold (75), red (100), black (200)
+    var d_unlocked = false; var g_unlocked = false; var b_unlocked = false; var o_unlocked = false; var r_unlocked = false; var bl_unlocked = false;
+    var changing = false; //detects if theme is changing or not
+    var bkg = [230, 230, 230];
+    var paddle = [175,175,175]; //-55 from bkg
+    var circle = [200,200,200]; //-30 from bkg
+    var scoreText = [250,250,250]; //+20 from bkg
+    var scoreShadow = [200,200,200]; //-30 from bkg
+    var movementCircle = 0; //color
+
+    var g = { //green
+      bkg: [200, 225, 165],
+      paddle: [145,170,110],
+      circle: [170,195,135],
+      scoreText: [165,195,135],
+      scoreShadow: [225,255,195],
+      movementCircle: 0
+    }
+    var b = { //blue
+      bkg: [175, 215, 230],
+      paddle: [120,160,175],
+      circle: [145,185,200],
+      scoreText: [135,175,180],
+      scoreShadow: [195,235,240],
+      movementCircle: 0
+    }
+    var o = { //gold (stands for orange)
+      bkg: [255, 210, 130],
+      paddle: [200,155,75],
+      circle: [225,180,100],
+      scoreText: [215,170,90],
+      scoreShadow: [255,230,150],
+      movementCircle: 0
+    }
+    var r = { //red
+      bkg: [255, 160, 140],
+      paddle: [200,105,85],
+      circle: [225,130,110],
+      scoreText: [210,120,100],
+      scoreShadow: [255,190,170],
+      movementCircle: 0
+    }
+    var bl = { //black
+      bkg: [25, 25, 25],
+      paddle: [80,80,80],
+      circle: [55,55,55],
+      scoreText: [65,65,65],
+      scoreShadow: [15,15,15],
+      movementCircle: 255
+    }
+    var d = { //default (white)
+      bkg: [230, 230, 230],
+      paddle: [175,175,175],
+      circle: [200,200,200],
+      scoreText: [250,250,250],
+      scoreShadow: [200,200,200],
+      movementCircle: 0
+    }
+
+    //x,y,bx,by,w,h, txt, txtSize, mode, hover
+    //BUTTON INFO
+    var resume = {
+      x: width/2,
+      y: height/2-100+50,
+      bx: width/2,
+      by: height/2-100+50,
+      w: 200,
+      h: 75,
+      txt: "Resume",
+      txtSize: 30,
+      mode: CENTER,
+      hover: false
+    }
+    
+    var circleToggle = { //toggle on and off
+      x: width/2,
+      y: height/2+50,
+      bx: width/2,
+      by: height/2+50,
+      w: 200,
+      h: 75,
+      txt: "Circle: ON",
+      txtSize: 30,
+      mode: CENTER,
+      hover: false
+    }
+
+    var muteBtn = { //toggle on and off
+      x: width/2,
+      y: height/2+100+50,
+      bx: width/2,
+      by: height/2+100+50,
+      w: 200,
+      h: 75,
+      txt: "Mute",
+      txtSize: 30,
+      mode: CENTER,
+      hover: false
+    }
+
+    var credits = {
+      x: width/2,
+      y: height/2+200+50,
+      bx: width/2,
+      by: height/2+200+50,
+      w: 200,
+      h: 75,
+      txt: "Credits",
+      txtSize: 30,
+      mode: CENTER,
+      hover: false,
+      open: false
+    }
+
+    //scene 2
+    var home = {
+      x: width/2-420,
+      y: 1.7*height/3,
+      bx: width/2-420,
+      by: 1.7*height/3,
+      w: 400,
+      h: 125,
+      txt: "Home",
+      txtSize: 40,
+      mode: CORNER,
+      hover: false
+    }
+
+    var restart = {
+      x: width/2+20,
+      y: 1.7*height/3,
+      bx: width/2+20,
+      by: 1.7*height/3,
+      w: 400,
+      h: 125,
+      txt: "Restart",
+      txtSize: 40,
+      mode: CORNER,
+      hover: false
+    }
+
+    //scene 0
+    var start = {
+      x: width/2,
+      y: 1.05*height/2,
+      bx: width/2,
+      by: 1.05*height/2,
+      w: 300,
+      h: 120,
+      txt: "Start",
+      txtSize: 55,
+      mode: CENTER,
+      hover: false
+    }
+
+    var how = {
+      x: width/2,
+      y: 1.05*height/2+150,
+      bx: width/2,
+      by: 1.05*height/2+150,
+      w: 300,
+      h: 120,
+      txt: "How",
+      txtSize: 55,
+      mode: CENTER,
+      hover: false
+    }
+
+    //scene -1
+    var back = {
+      x: width/2,
+      y: 0.8*height,
+      bx: width/2,
+      by: 0.8*height,
+      w: 250,
+      h: 100,
+      txt: "Back",
+      txtSize: 45,
+      mode: CENTER,
+      hover: false
+    }
+
+    var titleY = 150;
+    
+
+    var button = function(bn){
+      //x,y,bx,by,w,h, txt, txtSize, mode, hover (bx & by = buttonx and buttony, and x & y = original buttonx and originsl buttony)
+      //bn = Button Name
+
+      rectMode(bn.mode);
+
+      this.color = color(220);
+      //shadow
+      if(scene == 1){
+        fill(this.color,75);
+      } else {
+        fill(0,20);
+      }
+      rect(bn.x, bn.y, bn.w, bn.h);
+
+      //real
+      fill(this.color);
+      rect(bn.bx, bn.by, bn.w, bn.h);
+
+      textAlign(CENTER,CENTER);
+      textSize(bn.txtSize);
+      fill(100);
+      textFont(createFont("Open Sans"));
+
+      //display text
+      if(!bn.mode || bn.mode == CORNER || (!bn.mode && bn.mode == CORNER) ){
+        text(bn.txt,bn.bx+bn.w/2,bn.by+bn.h/2);
+      } else {
+        text(bn.txt,bn.bx,bn.by);
+      }
+
+      //mouse hover
+      if(!bn.mode || bn.mode == CORNER || (!bn.mode && bn.mode == CORNER) ){
+        if(mousex>bn.x && mousex<bn.x+bn.w && mousey>bn.y && mousey<bn.y+bn.h){
+          cursor(HAND);
+          bn.hover = true;
+          if(bn.bx>bn.x-5 && bn.by>bn.y-5){
+            bn.bx-=0.5;
+            bn.by-=0.5;
+          }
+        }
+        else if(bn.bx<bn.x && bn.by<bn.y){
+          bn.bx+=0.5;
+          bn.by+=0.5;
+          bn.hover = false;
+        } else {
+          bn.hover = false;
+        }
+      } else {
+        if(mousex>bn.x-bn.w/2 && mousex<bn.x+bn.w/2 && mousey>bn.y-bn.h/2 && mousey<bn.y+bn.h/2){
+          cursor(HAND);
+          bn.hover = true;
+          if(bn.bx>bn.x-5 && bn.by>bn.y-5){
+            bn.bx-=0.5;
+            bn.by-=0.5;
+          }
+        }
+        else if(bn.bx<bn.x && bn.by<bn.y){
+          bn.bx+=0.5;
+          bn.by+=0.5;
+          bn.hover = false;
+        } else {
+          bn.hover = false;
+        }
+      }
+
+    }
+
+    var bgmLink = {
+      x: width/2,
+      y: height/5,
+      txt: "Spanish Music",
+      txtSize: 30,
+      url: "https://www.youtube.com/watch?v=be9zyGfSMYc",
+      hover: false,
+      opened: false,
+      mode: CORNER
+    }
+
+    var link = function(linkName){
+      //x,y,txt,txtSize,url
+
+      noStroke();
+      textFont(createFont("Open Sans"));
+      textSize(linkName.txtSize);
+
+      if(linkName.opened == true){
+        fill(85,26,139);
+
+        stroke(85,26,139);
+        strokeWeight(3);
+        if(linkName.mode != CORNER){
+          line(linkName.x-textWidth(linkName.txt)/2,linkName.y+linkName.txtSize/2,linkName.x+textWidth(linkName.txt)/2,linkName.y+linkName.txtSize/2);
+        } else {
+          line(linkName.x,linkName.y+linkName.txtSize+1,linkName.x+textWidth(linkName.txt),linkName.y+linkName.txtSize+1);
+        }
+      } else {
+        fill(0,0,238); //not clicked
+
+        stroke(0,0,238);
+        strokeWeight(3);
+        if(linkName.mode != CORNER){
+          line(linkName.x-textWidth(linkName.txt)/2,linkName.y+linkName.txtSize/2+1,linkName.x+textWidth(linkName.txt)/2,linkName.y+linkName.txtSize/2+1);
+        } else {
+          line(linkName.x,linkName.y+linkName.txtSize+1,linkName.x+textWidth(linkName.txt),linkName.y+linkName.txtSize+1);
+        }
+      }
+      noStroke();
+
+      text(linkName.txt,linkName.x,linkName.y);
+
+      if(linkName.mode != CORNER){
+        if(mousex>linkName.x-textWidth(linkName.txt)/2 && mousex<linkName.x+textWidth(linkName.txt)/2 && mousey>linkName.y-linkName.txtSize/2 && mousey<linkName.y+linkName.txtSize/2){
+          cursor(HAND);
+          linkName.hover = true;
+        } else {
+          linkName.hover = false;
+        }
+      } else {
+        if(mousex>linkName.x && mousex<linkName.x+textWidth(linkName.txt) && mousey>linkName.y && mousey<linkName.y+linkName.txtSize){
+          cursor(HAND);
+          linkName.hover = true;
+        } else {
+          linkName.hover = false;
+        }
+      }
+      
+    }
+
+    var pauseButton = function(x,y,wt,ht,size){
+      noStroke();
+      rectMode(CENTER);
+
+      size = size || 1;
+
+      pushMatrix();
+      translate(x,y);
+      scale(size);
+      //outline
+      fill(150);
+      rect(wt/3-wt/16+0.5,ht/2,round(wt/3)+1,0.9*ht,20);
+      rect(2*wt/3+wt/16-0.5,ht/2,round(wt/3)+1,0.9*ht,20);
+
+      //main
+      fill(240);
+      rect(wt/3-wt/16,ht/2,wt/4,0.8*ht,10);
+      rect(2*wt/3+wt/16,ht/2,wt/4,0.8*ht,10);
+      popMatrix();
+      
+      if(mousex>x && /*mousex<x+size*wt*/ mousex<width && mousey>y && /*mousey<y+size*ht*/ mousey<height){
+        cursor(HAND);
+        mouseClicked = function(){
+          if(mousex>x && /*mousex<x+size*wt*/ mousex<width && mousey>y && /*mousey<y+size*ht*/ mousey<height){
+            if(paused == false){
+              paused = true;
+              circ.prev_spd = circ.spd;
+              circ.spd = 0;
+              if(music == true){
+                bgm.pause();
+                music = false;
+              }
+            }
+            else if(paused == true){
+              paused = false;
+              circ.spd = circ.prev_spd;
+              if(bgm.currentTime != 0){
+                music = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    var seamlessChange = function(currentColor, endColor){
+      this.time = 100;
+      if(!this.count){
+        this.count = 0;
+      }
+      if(this.count<this.time){
+        /*
+        bkg, paddle, circle, scoreText, scoreShadow, movementCircle
+        */
+        bkg[0] += (endColor.bkg[0]-currentColor.bkg[0])/this.time;
+        bkg[1] += (endColor.bkg[1]-currentColor.bkg[1])/this.time;
+        bkg[2] += (endColor.bkg[2]-currentColor.bkg[2])/this.time;
+
+        //PADDLE
+        paddle[0] += (endColor.paddle[0]-currentColor.paddle[0])/this.time;
+        paddle[1] += (endColor.paddle[1]-currentColor.paddle[1])/this.time;
+        paddle[2] += (endColor.paddle[2]-currentColor.paddle[2])/this.time;
+
+        //CIRCLE
+        circle[0] += (endColor.circle[0]-currentColor.circle[0])/this.time;
+        circle[1] += (endColor.circle[1]-currentColor.circle[1])/this.time;
+        circle[2] += (endColor.circle[2]-currentColor.circle[2])/this.time;
+
+        //SCORE TEXT
+        scoreText[0] += (endColor.scoreText[0]-currentColor.scoreText[0])/this.time;
+        scoreText[1] += (endColor.scoreText[1]-currentColor.scoreText[1])/this.time;
+        scoreText[2] += (endColor.scoreText[2]-currentColor.scoreText[2])/this.time;
+
+        //SCORE SHADOW
+        scoreShadow[0] += (endColor.scoreShadow[0]-currentColor.scoreShadow[0])/this.time;
+        scoreShadow[1] += (endColor.scoreShadow[1]-currentColor.scoreShadow[1])/this.time;
+        scoreShadow[2] += (endColor.scoreShadow[2]-currentColor.scoreShadow[2])/this.time;
+
+        //MOVEMENT CIRCLE (color)
+        movementCircle += (endColor.movementCircle-currentColor.movementCircle)/this.time;
+
+        //add to count
+        this.count++;
+      }
+      else {
+        changing = false;
+        this.count = 0;
+      }
+    }
+
+    var unlocked = function(themee){
+      if(!this.achievement_y || scene == 2){
+        this.achievement_y = -104;
+      }
+      if(!this.timer || scene == 2){
+        this.timer = 0;
+      }
+      pushMatrix();
+      translate(0,this.achievement_y);
+
+      if(this.achievement_y<0 && this.timer<300){
+        this.achievement_y+=3;
+      } else if(this.timer<300){
+        this.timer++;
+      }
+
+      if(this.achievement_y>=0 && this.timer == 0){
+        achievement.play();
+      }
+
+      if(this.timer >= 300 && this.achievement_y > -104){
+        this.achievement_y-=3;
+      } else if(this.timer>=300 && this.achievement_y <= -104){
+        this.timer=0;
+        if(themee == d){d_unlocked = true}if(themee == g){g_unlocked = true}if(themee == b){b_unlocked = true}if(themee == o){o_unlocked = true}if(themee == r){r_unlocked = true}if(themee == bl){bl_unlocked = true}
+      }
+
+      stroke(100);
+      strokeWeight(4);
+      fill(215);
+      rectMode(CORNER);
+      this.achievement_width = 320;
+      rect(width-achievement_width,0,achievement_width,100);
+
+      fill(themee.circle[0],themee.circle[1],themee.circle[2]);
+      noStroke();
+      ellipse(width-this.achievement_width+50,50,70,70);
+      if(themee == bl){
+        image(dark_theme,width-this.achievement_width+50-35,50-35,70,70);
+      }
+
+      if(themee == d){this.theme_name="Default"}if(themee == g){this.theme_name="Green"}if(themee == b){this.theme_name="Blue"}if(themee == o){this.theme_name="Gold"}if(themee == r){this.theme_name="Red"}if(themee == bl){this.theme_name="Dark"}else{this.themee_name="No"}
+
+      fill(10);
+      textSize(30);
+      textAlign(LEFT,TOP);
+      textFont(createFont("Poppins"));
+      text("Unlocked:",width-this.achievement_width+100,10);
+      text("Unlocked:",width-this.achievement_width+101,11);
+//green (25), blue (50), gold (75), red (100), black (200)
+      text(this.theme_name + " Theme",width-this.achievement_width+100,45);
+
+      popMatrix();
+    }
+
+    var rotatePoint = function (x, y, theta, sine) {
+      var cosine = theta;
+      if (sine === undefined) {
+        cosine = cos(theta);
+        sine = sin(theta);
+      }
+      return {
+        x: cosine * x + sine * y,
+        y: -sine * x + cosine * y
+      };
+    };
+    
+    var rectangleMode = function (mode) {
+      if (mode !== undefined) {
+        rectangleMode.mode = mode;
+      }
+      return rectangleMode.mode;
+    };
+    
+    var isInCircle = function (x, y, cx, cy, diam) {
+      var dx = x - cx;
+      var dy = y - cy;
+      return dx * dx + dy * dy <= diam * diam / 4;
+    };
+    
+    var rectCircleCollide = function (rx, ry, w, h, theta, cx, cy, diam) {
+      if (theta) {
+        var r = rotatePoint(cx - rx, cy - ry, theta);
+        cx = r.x + rx;
+        cy = r.y + ry;
+      }
+      if (rectangleMode.mode === CORNERS) {
+        w -= rx;
+        h -= ry;
+      } else if (rectangleMode.mode === CENTER) {
+        rx -= w / 2;
+        ry -= h / 2;
+      }
+      var closestX = constrain(cx, rx, rx + w);
+      var closestY = constrain(cy, ry, ry + h);
+      return isInCircle(closestX, closestY, cx, cy, diam);
+    };
+
+    var rotatePoints = function(x,y,angle){
+      this.x = x*cos(angle) - y*sin(angle);
+      this.y = y*cos(angle) + x*sin(angle);
+
+      return {
+        x: this.x,
+        y: this.y
+      };
+    }
+
+    var pdl = { //paddle
+      //basic
+      x: 0,
+      y: -400, //400 is radius of movement circle
+      w: 125,
+      h: 20,
+
+      //more
+      r: 0 //rotation
+      //c: 175 //color
+    }
+
+    var circ = { //circle/ball
+      //basic
+      x: 0,
+      y: 0,
+      s: 40,
+
+      //more
+      spd: 4,
+      prev_spd: 0 //spd before pausing
+      //c: 200 //color
+
+    }
+
+    function shuffle(array) {
+      let currentIndex = array.length;
+
+      while (currentIndex != 0) {
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        
+        currentIndex--;
+        
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex], array[currentIndex]];
+      }
+    }
+
+    function randomizeChoices(arr) {
+      return arr.map(item => {
+        let question = item[0];
+        let choices = item.slice(1);
+        choices.sort(() => Math.random() - 0.5);
+        return [question, ...choices];
+      });
+    }
+
+    var questions = randomizeChoices([
+      ["gato", ["cat", "yes"], ["dog", "no"], ["mouse", "no"]],
+      ["libro", ["book", "yes"], ["table", "no"], ["pen", "no"]],
+      ["manzana", ["apple", "yes"], ["orange", "no"], ["grape", "no"]],
+      ["casa", ["house", "yes"], ["car", "no"], ["tree", "no"]],
+      ["amigo", ["friend", "yes"], ["enemy", "no"], ["stranger", "no"]],
+      ["comida", ["food", "yes"], ["drink", "no"], ["snack", "no"]],
+      ["blanco", ["white", "yes"], ["black", "no"], ["green", "no"]],
+      ["correr", ["run", "yes"], ["walk", "no"], ["jump", "no"]],
+      ["apagar", ["turn off", "yes"], ["lizard", "no"], ["flip", "no"]],
+      ["contraseña", ["password", "yes"], ["counter", "no"], ["grass", "no"]],
+      ["mujer", ["woman", "yes"], ["man", "no"], ["child", "no"]],
+      ["niño", ["child", "yes"], ["adult", "no"], ["elderly", "no"]],
+      ["balcón", ["balcony", "yes"], ["bacon", "no"], ["basin", "no"]],
+      ["sótano", ["basement", "yes"], ["moon", "no"], ["star", "no"]],
+      ["muebles", ["furniture", "yes"], ["man", "no"], ["sea", "no"]],
+      ["agua", ["water", "yes"], ["milk", "no"], ["juice", "no"]],
+      ["salud", ["health", "yes"], ["cough", "no"], ["planet", "no"]],
+      ["tiempo", ["time", "yes"], ["weather", "no"], ["day", "no"]],
+      ["caerse", ["fall", "yes"], ["fan", "no"], ["fly", "no"]],
+      ["cuerpo", ["body", "yes"], ["blue", "no"], ["case", "no"]],
+      ["la farmacia", ["pharmacy", "yes"], ["farm", "no"], ["CIA", "no"]],
+      ["luz", ["light", "yes"], ["love", "no"], ["learn", "no"]],
+      ["rojo", ["red", "yes"], ["green", "no"], ["blue", "no"]],
+      ["vecino", ["neighbor", "yes"], ["victory", "no"], ["race", "no"]],
+      ["grande", ["big", "yes"], ["small", "no"], ["medium", "no"]],
+      ["pequeño", ["small", "yes"], ["big", "no"], ["medium", "no"]],
+      ["rápido", ["fast", "yes"], ["slow", "no"], ["quick", "no"]],
+      ["jardín", ["garden", "yes"], ["fast", "no"], ["jar", "no"]],
+      ["feliz", ["happy", "yes"], ["sad", "no"], ["angry", "no"]],
+      ["triste", ["sad", "yes"], ["happy", "no"], ["angry", "no"]],
+      ["enojado", ["angry", "yes"], ["happy", "no"], ["sad", "no"]],
+      ["frío", ["cold", "yes"], ["hot", "no"], ["warm", "no"]],
+      ["caliente", ["hot", "yes"], ["cold", "no"], ["warm", "no"]],
+      ["ciudad", ["city", "yes"], ["town", "no"], ["village", "no"]],
+      ["tostadora", ["toaster", "yes"], ["desert", "no"], ["mountain", "no"]],
+      ["pasillo", ["hallway", "yes"], ["hill", "no"], ["valley", "no"]],
+      ["dentista", ["dentist", "yes"], ["tree", "no"], ["plumber", "no"]],
+      ["playa", ["beach", "yes"], ["forest", "no"], ["desert", "no"]],
+      ["perro", ["dog", "yes"], ["cat", "no"], ["mouse", "no"]],
+      ["calle", ["street", "yes"], ["phone", "no"], ["dog", "no"]],
+      ["Imperfect form of comer (yo)", ["comía", "yes"], ["comí", "no"], ["come", "no"]], //imperfect tense
+      ["Ellos ___ muy felices.", ["están", "yes"], ["son", "no"], ["IDK", "no"]], //ser vs. estar
+      ["Estudio español ___ viajar.", ["para", "yes"], ["por", "no"], ["IDK", "no"]], //por vs. para, //por vs. para
+      ["Formal command of 'hablar' (Ud. affirmative)", ["hable", "yes"], ["habla", "no"], ["hablen", "no"]], //formal commands
+      ["¿Cómo se dice 'I was speaking' en español?", ["yo hablaba", "yes"], ["yo hablé", "no"], ["yo estoy hablando", "no"]], //imperfect tense
+      ["La casa ___ grande.", ["es", "yes"], ["está", "no"], ["IDK", "no"]], //ser vs. estar
+      ["¿_____ qué no fuiste a la fiesta ayer?", ["por", "yes"], ["para", "no"], ["IDK", "no"]], //por vs. para
+      ["Negative formal command of comer (Ud.)", ["no coma", "yes"], ["no come", "no"], ["no comas", "no"]], //formal commands
+      ["Imperfect tense of vivir (yo)", ["vivía", "yes"], ["viví", "no"], ["vive", "no"]], //imperfect tense
+      ["Los niños ___ en la escuela.", ["están", "yes"], ["son", "no"], ["IDK", "no"]] //ser vs. estar
+    ]);
+
+    shuffle(questions);
+    
+    var update = function(){
+      if(score<100 || score == 168 || score == 169){
+        score++;
+
+        if(score <= questions.length+1){
+          paused = true;
+          circ.prev_spd = circ.spd;
+          circ.spd = 0;
+
+          inQuestion = true;
+
+          if(score <= questions.length){
+            swal({
+              buttons: {
+                a: {
+                  text: "A) " + questions[score-1][1][0],
+                  value: questions[score-1][1][1],
+                },
+                b: {
+                  text: "B) " + questions[score-1][2][0],
+                  value: questions[score-1][2][1],
+                },
+                c: {
+                  text: "C) " + questions[score-1][3][0],
+                  value: questions[score-1][3][1],
+                },
+              }, 
+              title: questions[score-1][0], 
+              text: "Lives: " + "❤️".repeat(lives), 
+              icon: "info",
+              closeOnEsc: false,
+              closeOnClickOutside: false,
+            }).then((value) => {
+              switch (value) {
+                case "yes":
+                  if (lives < 3) lives++;
+                  swal({title: "Correct!", 
+                    text: "Lives: " + "❤️".repeat(lives), 
+                    icon: "success",
+                    closeOnEsc: false,
+                    closeOnClickOutside: false,
+                  })
+                  break;
+    
+                case "no":
+                  lives--;
+                  var correct = questions[score-1][1][0];
+                  if(questions[score-1][2][1] == "yes"){
+                    correct = questions[score-1][2][0];
+                  } else if(questions[score-1][3][1] == "yes"){
+                    correct = questions[score-1][3][0];
+                  }
+                  swal({title: "Incorrect: " + correct, 
+                    text: "Lives: " + (lives > 0 ? "❤️".repeat(lives) : "0"), 
+                    icon: "error",
+                    closeOnEsc: false,
+                    closeOnClickOutside: false,
+                  })
+                  break;
+              }
+    
+              document.querySelector(".swal-button--confirm").onclick = () => {
+                inQuestion = false;
+                paused = false;
+                circ.spd = circ.prev_spd;
+              };
+              
+            });
+          } else {
+            swal({title: "No more questions!", 
+              text: "Lives: " + "❤️".repeat(lives), 
+              icon: "success",
+              closeOnEsc: false,
+              closeOnClickOutside: false,
+            })
+
+            document.querySelector(".swal-button--confirm").onclick = () => {
+              inQuestion = false;
+              paused = false;
+              circ.spd = circ.prev_spd;
+            };
+          }
+        }
+        
+      }
+      else {
+        score += 2;
+      }
+      if (paused == false) circ.spd= 4 + 0.1*score; //4 is original starting speed
+      if(score == music_start){
+        music = true;
+        bgm.volume = 0;
+      }
+
+      /*THEME CHANGES*/
+      if(score == 10){
+        theme = "green";
+        changing = true;
+      }
+
+      if(score == 20){
+        theme = "blue";
+        changing = true;
+      }
+
+      if(score == 30){
+        theme = "gold";
+        changing = true;
+      }
+
+      if(score == 40){
+        theme = "red";
+        changing = true;
+      }
+
+      if(score == 50){
+        theme = "black";
+        changing = true;
+        if(bl_unlocked == false){
+          unlocked(bl); //d,g,b,o,r,bl
+        }
+      }
+
+    }
+
+
+    draw = function(){
+      noStroke();
+      frameRate(60);
+      cursor(ARROW);
+      textAlign(CENTER,CENTER);
+
+      w = parseInt(document.getElementById('mycanvas').style.width.slice(0,-2));
+
+      h = parseInt(document.getElementById('mycanvas').style.height.slice(0,-2));
+
+      mousex=(mouseX*1600/w)+width/2;
+
+      mousey=(mouseY*900/h)+height/2;
+
+      /* START CODE HERE */
+
+      if(scene == -1){
+        background(230);
+        noStroke();
+
+        if(scene_fade>0){
+          scene_fade -= 4;
+        }
+
+        textAlign(CENTER,CENTER);
+
+        textFont(createFont("Itim"));
+        textSize(225);
+
+        //shadow
+        fill(200);
+        text("HOW",width/2+5,175+5);
+
+        //real
+        fill(255);
+        text("HOW",width/2-5,175-5);
+
+
+        textFont(createFont("Open Sans"));
+        fill(85);
+        textSize(50);
+
+        text("Move your mouse to control the paddle.\nKeep the ball inside of the area for as long as you can.\nAnswer spanish questions correctly.",width/2,1.0*height/2);
+
+        button(back);
+
+        mouseClicked = function(){
+          if(scene == -1){
+            if(back.hover == true){
+              scene = 0;
+            }
+          }
+        }
+
+      } //end of scene -1
+
+      if(scene == 0){
+        background(230);
+        noStroke();
+
+        if(scene_fade>0){
+          scene_fade -= 4;
+        }
+
+        textFont(createFont("Itim"));
+        textAlign(CENTER,CENTER);
+        textSize(125);
+
+        pushMatrix();
+        translate(0,75);
+
+        //shadow
+        fill(200);
+        text("SPANISH",width/2+5,titleY+5-100);
+
+        //real
+        fill(255);
+        text("SPANISH",width/2-5,titleY-5-100);
+
+        textSize(225);
+        //shadow
+        fill(200);
+        text("BOUNCE",width/2+5,titleY+5+50);
+
+        //real
+        fill(255);
+        text("BOUNCE",width/2-5,titleY-5+50);
+
+        this.bOunceX = width/2-220;
+        ellipse(this.bOunceX,titleY+50, 120,120);
+
+        pushMatrix();
+        translate(this.bOunceX,titleY+50);
+
+        /*stroke(0);
+        strokeWeight(1);
+        ellipse(0,0,90,90);*/
+
+        noFill();
+        stroke(0,20);
+        strokeWeight(20);
+        arc(0,0,90,90,radians(290),radians(330));
+        popMatrix();
+        
+        popMatrix();
+
+        noStroke();
+
+        button(start);
+        button(how);
+
+        mouseClicked = function(){
+          if(scene == 0){
+            if(start.hover == true){
+              scene = 1;
+            }
+            if(how.hover == true){
+              scene = -1;
+            }
+          }
+        }
+
+      } //end of scene 0
+
+      else if(scene == 1){
+        pushMatrix();
+        translate(width/2,height/2); //origin is in center of screen
+        
+        background(bkg[0], bkg[1], bkg[2]);
+        noStroke();
+
+        if(theme == "green" && changing == true){
+          seamlessChange(d, g);
+        }
+        if(theme == "blue" && changing == true){
+          seamlessChange(g, b);
+        }
+        if(theme == "gold" && changing == true){
+          seamlessChange(b, o);
+        }
+        if(theme == "red" && changing == true){
+          seamlessChange(o, r);
+        }
+        if(theme == "black" && changing == true){
+          seamlessChange(r, bl);
+        }
+
+        if(music==true && muted == false){
+          bgm.play();
+          musicStarted = true;
+          if(inQuestion == true){
+            bgm.volume = 0.3;
+          } else {
+            if(bgm.volume < 1-1/150){ //fade in
+              bgm.volume += 1/150;
+            }
+            else {
+              bgm.volume = 1;
+            }
+          }
+        }
+
+        //score
+        textAlign(CENTER,CENTER);
+        textSize(200);
+        textFont(createFont("Roboto Mono"));
+        //shadow
+        fill(scoreShadow[0], scoreShadow[1], scoreShadow[2]);
+        text(score,2,2);
+        //real
+        fill(scoreText[0], scoreText[1], scoreText[2]);
+        text(score,0,0);
+
+        //movement circle
+        if(movementCircleToggle == true){
+          if(theme != "black"){
+            stroke(movementCircle,50);
+          }
+          else {
+            stroke(movementCircle,85);
+          }
+          strokeWeight(1);
+          noFill();
+          ellipse(0,0,abs(pdl.y)*2,abs(pdl.y)*2); //movement circle, abs(pdl.y) = radius
+        }
+
+        //circ
+        noStroke();
+        fill(circle[0], circle[1], circle[2]);
+        ellipse(circ.x,circ.y,circ.s,circ.s);
+
+        //circ movement
+        if(circ.s>0){
+          circ.x += cos(radians(angle-90))*circ.spd;
+          circ.y += sin(radians(angle-90))*circ.spd;
+        }
+
+        //on death
+        if(dist(circ.x,circ.y,0,0)>=abs(pdl.y)+circ.s/2+pdl.h/2 || lives <= 0){
+          music = false;
+          if(circ.s>0){
+            circ.s-=2;
+          }
+          if(circ.spd>0){
+            circ.spd-=2*circ.spd/circ.s;
+          }
+
+          if(scene_fade < 255){
+            scene_fade += 5;
+          } else {
+            scene = 2;
+          }
+
+          if(bgm.volume>1/70){
+            bgm.volume -= 1/70;
+          }
+          else {
+            bgm.volume = 0;
+          }
+        }
+        else if(scene_fade>0){
+          scene_fade -= 4;
+        }
+
+        //pdl
+        noStroke();
+        fill(paddle[0], paddle[1], paddle[2]);
+        rectangleMode(CENTER);
+        rectMode(CENTER);
+        pushMatrix();
+        translate(rotatePoints(pdl.x,pdl.y,radians(pdl.r)).x,rotatePoints(pdl.x,pdl.y,radians(pdl.r)).y);
+        rotate(radians(pdl.r));
+        rect(0,0,pdl.w,pdl.h);
+        popMatrix();
+
+        /*stroke(0);
+        strokeWeight(5);
+        point(rotatePoints(pdl.x,pdl.y,radians(pdl.r)).x,rotatePoints(pdl.x,pdl.y,radians(pdl.r)).y);*/
+
+        if(rectCircleCollide(rotatePoints(pdl.x,pdl.y,radians(pdl.r)).x,rotatePoints(pdl.x,pdl.y,radians(pdl.r)).y, pdl.w, pdl.h, radians(pdl.r), circ.x, circ.y, circ.s)){
+
+          if(dist(rotatePoints(pdl.x,pdl.y,radians(pdl.r)).x,rotatePoints(pdl.x,pdl.y,radians(pdl.r)).y,0,0)>abs(pdl.y)-10){ //prevents bug
+            
+            //console.log("circ: " + angle + " pdl: " + (pdl.r));
+            if(angle < pdl.r && collided == false){
+              offset = Math.abs(angle-pdl.r); //positive
+              update();
+              collided = true;
+              //console.log("positive");
+            }
+            if(angle > pdl.r && collided == false){
+              offset = -Math.abs(angle-pdl.r); //negative
+              update();
+              collided = true;
+              //console.log("negative");
+            }
+            if(angle == pdl.r && collided == false){
+              offset = 0;
+              update();
+              collided = true;
+              //console.log("neither");
+            }
+
+            angle = pdl.r<180 ? pdl.r+180+offset : pdl.r-180+offset;
+            //condition ? isTrue : isFalse
+          }
+
+        } else {
+          collided = false;
+        }
+
+        if(paused == false){
+          if(degrees(Math.atan2(mousey-height/2, mousex-width/2))+90>0){
+            pdl.r = degrees(Math.atan2(mousey-height/2, mousex-width/2))+90;
+          }
+          else {
+            pdl.r = 360+degrees(Math.atan2(mousey-height/2, mousex-width/2))+90;
+          }
+        }
+
+        if(pdl.r <= 0) {
+          pdl.r = 360+pdl.r;
+        }
+
+        popMatrix();
+
+        if(paused == true){
+          noStroke();
+          rectMode(CORNER);
+          fill(0,100);
+          rect(0,0,width,height);
+
+          if(credits.open == false){
+            fill(230);
+            textSize(50);
+            textAlign(CENTER,CENTER);
+            textFont(createFont("Open Sans"));
+
+            text("Score: " + score, width/2,height/2-150);
+            if(inQuestion == false){
+              button(resume);
+              button(circleToggle);
+              button(muteBtn);
+              button(credits);
+            }
+          }
+
+          if(credits.open == true){
+            this.creditH=175; //credit's height
+            this.creditW=300; //credit's width
+            noStroke();
+            fill(240);
+            rectMode(CENTER);
+            rect(width/2,height/2,this.creditW,this.creditH,20);
+
+            textFont(createFont("Lato"));
+            textSize(40);
+            fill(0);
+            text("Credits",width/2,height/2-this.creditH/2+20+10);
+
+            textSize(30);
+            fill(0);
+            textAlign(LEFT,TOP);
+            text("Background Music:",width/2-this.creditW/2+10,height/2-this.creditH/2+40+10+25);
+
+            bgmLink.x = width/2-this.creditW/2+10;
+            bgmLink.y = height/2-this.creditH/2+40+10+25+30+5;
+            link(bgmLink);
+
+            //x out of credits
+            this.xX = width/2+this.creditW/2-7;
+            this.xY = height/2-this.creditH/2;
+            this.xS = 30;
+
+            fill(100,0,0);
+            textSize(this.xS);
+            textAlign(RIGHT,TOP);
+            text("✕",this.xX,this.xY);
+
+            if(mousex>this.xX-this.xS && mousex<this.xX && mousey>this.xY && mousey<this.xY+this.xS){
+              cursor(HAND);
+            }
+
+            textAlign(CENTER,CENTER);
+          }
+
+          rectMode(CORNER);
+
+          mouseClicked = function(){
+            if(scene == 1 && paused == true){
+              if(resume.hover == true){
+                paused = false;
+                circ.spd = circ.prev_spd;
+                if(bgm.currentTime != 0){
+                  music = true;
+                }
+              }
+
+              if(circleToggle.hover == true){
+                if(movementCircleToggle == false){
+                  movementCircleToggle = true;
+                  circleToggle.txt = "Circle: ON";
+                }
+                else if(movementCircleToggle == true){
+                  movementCircleToggle = false;
+                  circleToggle.txt = "Circle: OFF";
+                }
+              }
+
+              if(muteBtn.hover == true){
+                if(muted == false){
+                  muted = true;
+                  muteBtn.txt = "Unmute";
+                }
+                else if(muted == true){
+                  muted = false;
+                  if(score >= music_start && musicStarted == false){
+                    bgm.play();
+                  }
+                  muteBtn.txt = "Mute";
+                }
+              }
+
+              if(credits.hover == true){
+                credits.open = true;
+              }
+
+              if(credits.open == true){
+                if(bgmLink.hover == true){
+                  window.open(bgmLink.url);
+                  bgmLink.opened = true;
+                }
+
+                //x out of credits
+                if(mousex>this.xX-this.xS && mousex<this.xX && mousey>this.xY && mousey<this.xY+this.xS){
+                  credits.open = false;
+                }
+              }
+
+            } //end of pause menu clicks
+
+          } // end of mouseClicked function
+
+        } //end of paused stuff
+
+        if(paused == false){
+          pauseButton(width-120,height-120,80,80,1.2);
+        }
+
+      } //end of scene 1
+
+      /* GAME OVER SCENE */
+      else if(scene == 2){
+        background(230);
+
+        if(scene_fade>0){
+          scene_fade-=4;
+        }
+        if(bgm.volume>1/70){
+          bgm.volume -= 1/70;
+        }
+        else {
+          bgm.volume = 0;
+          bgm.currentTime = 0;
+        }
+
+        textFont(createFont("Oswald"));
+        textSize(75);
+        fill(50);
+        text("SCORE",width/2,height/3-this.centered);
+
+        textSize(200);
+        fill(255);
+        textFont(createFont("Inconsolata"));
+        //shadow
+        fill(200);
+        text(score,width/2+2,height/3+2+this.centered);
+        //real
+        fill(250);
+        text(score,width/2,height/3+this.centered);
+
+        this.centered = 60;
+
+        textFont(createFont("Arial"));
+        textSize(40);
+        fill(180);
+        pushMatrix();
+          translate(width/2,1.55*height/3);
+          rotate(radians(highscore_rotation));
+          text(score>highscore ? "New Highscore!" : "Highscore: " + highscore, 0,0);
+        popMatrix();
+
+        if(score>highscore){
+          new_highscore = score;
+        }
+
+        rectMode(TOP,LEFT);
+        fill(200);
+        button(home);
+        button(restart);
+
+        mouseClicked = function(){
+          if(scene == 2){
+            if(restart.hover == true || home.hover == true){
+              //reset scene 1
+              circ.x = 0;
+              circ.y = 0;
+              circ.s = 40;
+              circ.spd = 4;
+              score = 0;
+              lives = 2;
+              bgm.volume = 1;
+              bgm.currentTime = 0;
+              bgm.pause();
+              angle = random(0,360);
+              highscore_rotation = round(random(-3,3));
+              music_start = round(random(1,5));
+              highscore = new_highscore;
+              theme = "default";
+              bkg = [230, 230, 230];
+              paddle = [175,175,175]; //-55 from bkg
+              circle = [200,200,200]; //-30 from bkg
+              scoreText = [250,250,250]; //+20 from bkg
+              scoreShadow = [200,200,200]; //-30 from bkg
+              movementCircle = 0; //color
+              changing = false;
+              credits.open = false;
+              paused = false;
+
+              d_unlocked = false; g_unlocked = false; b_unlocked = false; o_unlocked = false; r_unlocked = false; bl_unlocked = false;
+            }
+
+            if(restart.hover == true){
+              scene = 1;
+            }
+
+            if(home.hover == true) {
+              scene = 0;
+            }
+          }
+        }
+
+      }
+
+      keyPressed = function() {
+        keys[keyCode] = true;
+      };
+
+      keyReleased = function() {
+        keys[keyCode] = false;
+      };
+
+      noStroke();
+      fill(230,scene_fade);
+      rectMode(TOP,LEFT);
+      rect(0,0,width,height);
+
+      if(score>=10 && g_unlocked == false){
+        unlocked(g); //d,g,b,o,r,bl
+      }
+      if(score>=20 && b_unlocked == false){
+        unlocked(b); //d,g,b,o,r,bl
+      }
+      if(score>=30 && o_unlocked == false){
+        unlocked(o); //d,g,b,o,r,bl
+      }
+      if(score>=40 && r_unlocked == false){
+        unlocked(r); //d,g,b,o,r,bl
+      }
+      if(score>=50 && bl_unlocked == false){
+        unlocked(bl); //d,g,b,o,r,bl
+      }
+      
+
+    } //end of draw function
+    
+    
+
+  } //end
+  } //end
+  var canvas = document.getElementById("mycanvas");
+  var processingInstance = new Processing(canvas, programCode);
+  </script>
+
+</body>
+
+</html>
