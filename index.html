@@ -322,9 +322,9 @@
     var bgmLink = {
       x: width/2,
       y: height/5,
-      txt: "Spanish Music",
+      txt: "Music Link",
       txtSize: 30,
-      url: "https://www.youtube.com/watch?v=be9zyGfSMYc",
+      url: "https://www.youtube.com/watch?v=fzNMd3Tu1Zw",
       hover: false,
       opened: false,
       mode: CORNER
@@ -625,7 +625,7 @@
       });
     }
 
-    var questions = randomizeChoices([
+    var questions = [
       ["gato", ["cat", "yes"], ["dog", "no"], ["mouse", "no"]],
       ["libro", ["book", "yes"], ["table", "no"], ["pen", "no"]],
       ["manzana", ["apple", "yes"], ["orange", "no"], ["grape", "no"]],
@@ -676,8 +676,9 @@
       ["Negative formal command of comer (Ud.)", ["no coma", "yes"], ["no come", "no"], ["no comas", "no"]], //formal commands
       ["Imperfect tense of vivir (yo)", ["vivía", "yes"], ["viví", "no"], ["vive", "no"]], //imperfect tense
       ["Los niños ___ en la escuela.", ["están", "yes"], ["son", "no"], ["IDK", "no"]] //ser vs. estar
-    ]);
+    ];
 
+    questions = randomizeChoices(questions);
     shuffle(questions);
     
     var update = function(){
@@ -1277,6 +1278,8 @@
               circ.spd = 4;
               score = 0;
               lives = 2;
+              questions = randomizeChoices(questions);
+              shuffle(questions);
               bgm.volume = 1;
               bgm.currentTime = 0;
               bgm.pause();
