@@ -27,7 +27,7 @@
 <body onload="resizeGame();">
   <canvas class="center" id="mycanvas" style="width:100px;hieght:100px;"></canvas>
   
-  <script src="/processing.min.js"></script>
+  <script src="processing.min.js"></script>
 
   <script src="script.js"></script>
 
@@ -58,7 +58,7 @@
     var highscore_rotation = round(random(-3,3));
     var dark_theme = new PImage;
     dark_theme = loadImage("dark-theme.png");
-    var bgm = new Audio('bg-music.mp3'); //https://www.youtube.com/watch?v=RmisQTg1EdY&t=521s
+    var bgm = new Audio('bg-music.mp3');
     var music_start = round(random(1,5));
     var music = false;
     var musicStarted = false;
